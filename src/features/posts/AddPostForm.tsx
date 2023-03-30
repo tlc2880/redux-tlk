@@ -10,7 +10,7 @@ const AddPostForm = () => {
 
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
-  //  const [userId, setUserId] = useState('')
+    const [userId, setUserId] = useState('')
 
   //  const users = useSelector(selectAllUsers)
 
@@ -21,11 +21,7 @@ const AddPostForm = () => {
     const onSavePostClicked = () => {
         if (title && content) {
             dispatch(
-                postAdded({
-                    id: nanoid(), 
-                    title, 
-                    content
-                })
+                postAdded(title, content)
             )
             setTitle('')
             setContent('')
