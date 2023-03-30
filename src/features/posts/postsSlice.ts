@@ -1,4 +1,4 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, nanoid, PayloadAction } from "@reduxjs/toolkit";
 //import { sub } from 'date-fns';
 import postType from '../../post.Type';
 
@@ -13,7 +13,7 @@ const initialState = [
         title: 'Slices...',
         content: "The more I say slice, the more I want pizza."
     }
-]
+];
 
 // type PostsState = {
 //     list: postType[];
@@ -38,34 +38,28 @@ const postsSlice = createSlice({
     name: 'posts',
     initialState,
     reducers: {
-        postAdded(state, action) {
+        postAdded: {
+            reducer(state, action: PayloadAction<postType>) {
                 state.push(action.payload)
-        //     prepare(title, content, userId) {
-        //         return {
-        //             payload: {
-        //                 id: nanoid(),
-        //                 title,
-        //                 content,
-        //                 date: new Date().toISOString(),
-        //                 userId,
-        //                 reactions: {
-        //                     thumbsUp: 0,
-        //                     wow: 0,
-        //                     heart: 0,
-        //                     rocket: 0,
-        //                     coffee: 0
-        //                 }
-        //             }
-        //         }
-        //     }
-        // },
+            },
+            
+            prepare(title, content) {
+                return {
+                    payload: {
+                        id: nanoid(),
+                        title,
+                        content
+                    }
+                }
+            }
+        },
         // reactionAdded(state, action) {
         //     const { postId, reaction } = action.payload
         //     const existingPost = state.find(post => post.id === postId)
         //     if (existingPost) {
         //         existingPost.reactions[reaction]++
         //     }
-        }
+        // }
     }
 })
 
