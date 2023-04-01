@@ -1,37 +1,45 @@
-import { createSlice, nanoid, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, nanoid, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { sub } from 'date-fns';
+import axios from "axios";
 import postType from '../../post.Type';
 
-const initialState = [
-    {
-        id: '1',
-        title: 'React is cool',
-        content: "I've heard good things.",
-        userId: '1',
-        date: sub(new Date(), { minutes: 10 }).toISOString(),
-        reactions: {
-            thumbsUp: 0,
-            wow: 0,
-            heart: 0,
-            rocket: 0,
-            coffee: 0
-        }
-    },
-    {
-        id: '2',
-        title: 'Stay healthy',
-        content: "Excercise every day to live longer.",
-        userId: '2',
-        date: sub(new Date(), { minutes: 5 }).toISOString(),
-        reactions: {
-            thumbsUp: 0,
-            wow: 0,
-            heart: 0,
-            rocket: 0,
-            coffee: 0
-        }
-    }
-];
+const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
+
+type IPost = {
+    posts: [{
+        id: string,
+        title: string,
+        content: string,
+        userId: string,
+        date: string,
+        reactions: {}
+    }],
+    status: string
+    error: string | null | undefined
+}
+
+const initialState: IPost = {
+    posts: [{
+        id: '',
+        title: '',
+        content: '',
+        userId: '',
+        date: '',
+        reactions: {}
+    }],
+    status: 'idle', //'idle' | 'loading' | 'succeeded' | 'failed'
+    error: ''
+}
+
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
+    const response = await axios.get(POSTS_URL)
+    return response.data
+})
+
+export const addNewPost = createAsyncThunk('posts/addNewPost', async (initialPost) => {
+    const response = await axios.post(POSTS_URL, initialPost)
+    return response.data
+})
 
 const postsSlice = createSlice({
     name: 'posts',
@@ -39,7 +47,7 @@ const postsSlice = createSlice({
     reducers: {
         postAdded: {
             reducer(state, action: PayloadAction<postType>) {
-                state.push(action.payload)
+                state.posts.push(action.payload)
             },
             
             prepare(title, content, userId) {
@@ -63,16 +71,46 @@ const postsSlice = createSlice({
         },
         reactionAdded(state, action) {
             const { postId, reaction } = action.payload
-            const existingPost: any = state.find(post => post.id === postId)
+            const existingPost: any = state.posts.find(post => post.id === postId)
             console.log(existingPost);
             if (existingPost) {
                 existingPost.reactions[reaction]++
             }
         }
+    },
+    extraReducers(builder) {
+    builder
+        .addCase(fetchPosts.pending, (state, action) => {
+            state.status = 'loading'
+        })
+        .addCase(fetchPosts.fulfilled, (state, action: PayloadAction<postType[]>) => {
+            state.status = 'succeeded'
+            // Adding date and reactions
+            let min = 1;
+            const loadedPosts = action.payload.map(post => {
+                post.date = sub(new Date(), { minutes: min++ }).toISOString();
+                post.reactions = {
+                    thumbsUp: 0,
+                    wow: 0,
+                    heart: 0,
+                    rocket: 0,
+                    coffee: 0
+                }
+                return post;
+            });
+
+            // Add any fetched posts to the array
+            //  @ts-expect-error
+            state.posts  = state.posts.concat(loadedPosts)
+        })
+        .addCase(fetchPosts.rejected, (state, action) => {
+            state.status = 'failed'
+            state.error = action.error.message
+        })
     }
 })
 
-export const selectAllPosts = (state: any) => state.posts;
+export const selectAllPosts = (state: any) => state.posts.posts;
 
-export const { postAdded, reactionAdded } = postsSlice.actions//, reactionAdded
+export const { postAdded, reactionAdded } = postsSlice.actions;
 export default postsSlice.reducer
