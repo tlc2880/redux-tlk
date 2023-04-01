@@ -1,7 +1,7 @@
 import PostsList from "./features/posts/PostsList";
 import AddPostForm from "./features/posts/AddPostForm";
-import TodoList from "./features/todos/TodoList";
-import AddTodo from "./features/todos/AddTodo";
+// import TodoList from "./features/todos/TodoList";
+// import AddTodo from "./features/todos/AddTodo";
 
 function App() {
   return (
