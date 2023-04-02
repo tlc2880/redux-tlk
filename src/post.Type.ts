@@ -6,5 +6,6 @@ export default interface postType {
     content: string,
     userId: string,
     date: string,
+    body: string,
     reactions: reactionsType
   }
