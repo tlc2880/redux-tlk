@@ -145,10 +145,9 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state: any) => state.posts.posts;
 export const getPostsStatus = (state: any) => state.posts.status;
 export const getPostsError = (state: any) => state.posts.error;
-export const selectPostById = (state: any, postId: number) => {
-    //  @ts-expect-error    
-    return state.posts.posts.find(post => post.id === postId);
-}
+
+export const selectPostById = (state: any, postId: number) =>
+    state.posts.posts.find((post: any) => post.id === postId);
 
 export const { postAdded, reactionAdded } = postsSlice.actions
 export default postsSlice.reducer
