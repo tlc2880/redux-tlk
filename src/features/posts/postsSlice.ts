@@ -47,6 +47,17 @@ export const addNewPost: any = createAsyncThunk('posts/addNewPost', async (initi
     return response.data
 })
 
+export const updatePost: any = createAsyncThunk('posts/updatePost', async (post: postType) => {
+    const { id } = post;
+    try {
+        const response = await axios.put(`${POSTS_URL}/${id}`, post)
+        return response.data
+    } catch (err) {
+        //return err.message;
+        return post; // only for testing Redux!
+    }
+})
+
 const postsSlice = createSlice({
     name: 'posts',
     initialState,
@@ -139,16 +150,26 @@ const postsSlice = createSlice({
                 console.log(action.payload)
                 state.posts.push(action.payload)
             })
+            .addCase(updatePost.fulfilled, (state: any, action: PayloadAction<postType>) => {
+                if (!action.payload?.id) {
+                    console.log('Update could not complete')
+                    console.log(action.payload)
+                    return;
+                }
+                const { id } = action.payload;
+                action.payload.date = new Date().toISOString();
+                const posts = state.posts.filter((post: postType )=> post.id !== id);
+                state.posts = [...posts, action.payload];
+            })
+
     }
 })
 
 export const selectAllPosts = (state: any) => state.posts.posts;
 export const getPostsStatus = (state: any) => state.posts.status;
 export const getPostsError = (state: any) => state.posts.error;
-export const selectPostById = (state: any, postId: number) => {
-    //  @ts-expect-error    
-    return state.posts.posts.find(post => post.id === postId);
-}
+export const selectPostById = (state: any, postId: number) =>
+    state.posts.posts.find((post: any) => post.id === postId);
 
 export const { postAdded, reactionAdded } = postsSlice.actions
 export default postsSlice.reducer

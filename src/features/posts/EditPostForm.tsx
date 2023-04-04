@@ -1,53 +1,65 @@
-import { useState, ChangeEvent } from "react";
-import { useAppDispatch } from "../../app/hooks";
-import { useSelector } from "react-redux";
-import { addNewPost } from "./postsSlice";
+import { useState, ChangeEvent } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectPostById, updatePost } from './postsSlice'
+import { useParams, useNavigate } from 'react-router-dom'
 import { selectAllUsers } from "../users/usersSlice";
 import userType from '../../user.Type'
 
-const AddPostForm = () => {
-    const dispatch = useAppDispatch();
+const EditPostForm = () => {
+    const { postId } = useParams()
+    const navigate = useNavigate()
 
-    const [title, setTitle] = useState('')
-    const [content, setContent] = useState('')
-    const [userId, setUserId] = useState('')
-    const [addRequestStatus, setAddRequestStatus] = useState('idle')
-
+    const post = useSelector((state) => selectPostById(state, Number(postId)))
     const users: userType[] = useSelector(selectAllUsers)
+
+    const [title, setTitle] = useState(post?.title)
+    const [content, setContent] = useState(post?.body)
+    const [userId, setUserId] = useState(post?.userId)
+    const [requestStatus, setRequestStatus] = useState('idle')
+
+    const dispatch = useDispatch()
+
+    if (!post) {
+        return (
+            <section>
+                <h2>Post not found!</h2>
+            </section>
+        )
+    }
 
     const onTitleChanged = (e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)
     const onContentChanged = (e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)
-    const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) => setUserId(e.target.value)
+    const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) => setUserId(Number(e.target.value))
 
-    const canSave = [title, content, userId].every(Boolean) && addRequestStatus === 'idle';
+    const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
 
     const onSavePostClicked = () => {
         if (canSave) {
             try {
-                setAddRequestStatus('pending')
-                dispatch(addNewPost({ title, body: content, userId })).unwrap()
-
+                setRequestStatus('pending')
+                dispatch(updatePost({ id: post.id, title, body: content, userId, reactions: post.reactions })).unwrap()
                 setTitle('')
                 setContent('')
                 setUserId('')
+                navigate(`/post/${postId}`)
             } catch (err) {
                 console.error('Failed to save the post', err)
             } finally {
-                setAddRequestStatus('idle')
+                setRequestStatus('idle')
             }
         }
-
     }
 
     const usersOptions = users.map(user => (
-        <option key={user.id} value={user.id}>
-            {user.name}
-        </option>
+        <option
+            key={user.id}
+            value={user.id}
+        >{user.name}</option>
     ))
 
     return (
         <section>
-            <h2>Add a New Post</h2>
+            <h2>Edit Post</h2>
             <form>
                 <label htmlFor="postTitle">Post Title:</label>
                 <input
@@ -58,7 +70,7 @@ const AddPostForm = () => {
                     onChange={onTitleChanged}
                 />
                 <label htmlFor="postAuthor">Author:</label>
-                <select id="postAuthor" value={userId} onChange={onAuthorChanged}>
+                <select id="postAuthor" defaultValue={userId} onChange={onAuthorChanged}>
                     <option value=""></option>
                     {usersOptions}
                 </select>
@@ -73,9 +85,12 @@ const AddPostForm = () => {
                     type="button"
                     onClick={onSavePostClicked}
                     disabled={!canSave}
-                >Save Post</button>
+                >
+                    Save Post
+                </button>
             </form>
         </section>
     )
 }
-export default AddPostForm
+
+export default EditPostForm
