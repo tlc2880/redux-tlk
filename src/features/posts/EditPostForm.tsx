@@ -1,15 +1,16 @@
 import { useState, ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectPostById, updatePost } from './postsSlice'
+import { selectPostById, updatePost, deletePost } from './postsSlice'
 import { useParams, useNavigate } from 'react-router-dom'
 import { selectAllUsers } from "../users/usersSlice";
 import userType from '../../user.Type'
+import postType from '../../post.Type'
 
 const EditPostForm = () => {
     const { postId } = useParams()
     const navigate = useNavigate()
 
-    const post = useSelector((state) => selectPostById(state, Number(postId)))
+    const post: postType = useSelector((state) => selectPostById(state, Number(postId)))
     const users: userType[] = useSelector(selectAllUsers)
 
     const [title, setTitle] = useState(post?.title)
@@ -22,14 +23,14 @@ const EditPostForm = () => {
     if (!post) {
         return (
             <section>
-                <h2>Post not found!</h2>
+                <h4>Post not found!</h4>
             </section>
         )
     }
 
     const onTitleChanged = (e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)
     const onContentChanged = (e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)
-    const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) => setUserId(Number(e.target.value))
+    const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) => setUserId(e.target.value)
 
     const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
 
@@ -57,9 +58,24 @@ const EditPostForm = () => {
         >{user.name}</option>
     ))
 
+    const onDeletePostClicked = () => {
+        try {
+            setRequestStatus('pending')
+            dispatch(deletePost({ id: post.id })).unwrap()
+            setTitle('')
+            setContent('')
+            setUserId('')
+            navigate('/')
+        } catch (err) {
+            console.error('Failed to delete the post', err)
+        } finally {
+            setRequestStatus('idle')
+        }
+    }
+
     return (
         <section>
-            <h2>Edit Post</h2>
+            <h4>Edit Post</h4>
             <form>
                 <label htmlFor="postTitle">Post Title:</label>
                 <input
@@ -87,6 +103,12 @@ const EditPostForm = () => {
                     disabled={!canSave}
                 >
                     Save Post
+                </button>
+                <button className="deleteButton"
+                    type="button"
+                    onClick={onDeletePostClicked}
+                >
+                    Delete Post
                 </button>
             </form>
         </section>
