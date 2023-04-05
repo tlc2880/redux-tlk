@@ -1,7 +1,7 @@
 import reactionsType from './reactions.Type'
 
 export default interface postType {
-    id: string,
+    id: any,
     title: string,
     content: string,
     userId: string,

@@ -58,6 +58,17 @@ export const updatePost: any = createAsyncThunk('posts/updatePost', async (post:
     }
 })
 
+export const deletePost: any = createAsyncThunk('posts/deletePost', async (post: postType) => {
+    const { id } = post;
+    try {
+        const response = await axios.delete(`${POSTS_URL}/${id}`)
+        if (response?.status === 200) return post;
+        return `${response?.status}: ${response?.statusText}`;
+    } catch (err: any) {
+        return err.message;
+    }
+})
+
 const postsSlice = createSlice({
     name: 'posts',
     initialState,
@@ -87,15 +98,15 @@ const postsSlice = createSlice({
             }
         },
             
-        reactionAdded(state, action) {
-            const { postId, reaction } = action.payload
-            const existingPost: any = state.posts.find(post => post.id === postId)
-            console.log(existingPost);
-            if (existingPost) {
-                existingPost.reactions[reaction]++
+            reactionAdded(state, action) {
+                const { postId, reaction } = action.payload
+                const existingPost: any = state.posts.find(post => post.id === postId)
+                console.log(existingPost);
+                if (existingPost) {
+                    existingPost.reactions[reaction]++
+                }
             }
-        }
-    },
+        },
         extraReducers(builder) {
         builder
             .addCase(fetchPosts.pending, (state, action) => {
@@ -161,7 +172,16 @@ const postsSlice = createSlice({
                 const posts = state.posts.filter((post: postType )=> post.id !== id);
                 state.posts = [...posts, action.payload];
             })
-
+            .addCase(deletePost.fulfilled, (state: any, action: PayloadAction<postType>) => {
+                if (!action.payload?.id) {
+                    console.log('Delete could not complete')
+                    console.log(action.payload)
+                    return;
+                }
+                const { id } = action.payload;
+                const posts = state.posts.filter((post: postType ) => post.id !== id);
+                state.posts = posts;
+            })
     }
 })
 
