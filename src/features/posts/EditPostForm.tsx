@@ -75,7 +75,7 @@ const EditPostForm = () => {
 
     return (
         <section>
-            <h4>Redux Blog</h4>
+            <h4>Edit Post</h4>
             <form>
                 <label htmlFor="postTitle">Post Title:</label>
                 <input
