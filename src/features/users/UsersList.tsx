@@ -14,7 +14,7 @@ const UsersList = () => {
 
     return (
         <section>
-            <h4>Users</h4>
+            <h3>Users</h3>
             <ul>{renderedUsers}</ul>
         </section>
     )

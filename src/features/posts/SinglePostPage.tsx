@@ -12,7 +12,7 @@ const SinglePostPage = () => {
     if (!post) {
         return (
             <section>
-                <h4>Post not found!</h4>
+                <h2>Post not found!</h2>
             </section>
         )
     }
