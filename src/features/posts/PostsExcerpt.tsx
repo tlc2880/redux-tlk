@@ -3,13 +3,14 @@ import TimeAgo from "./TimeAgo";
 import ReactionButtons from "./ReactionButtons";
 import { Link } from 'react-router-dom';
 import postType from '../../post.Type'
+import React, { JSXElementConstructor } from "react";
 
 type PostsExcerptProps = {
     post: postType;
 }
 
-const PostsExcerpt = ({ post }: PostsExcerptProps) => {
-    return (
+let PostsExcerpt: JSXElementConstructor<PostsExcerptProps> = ({ post }: PostsExcerptProps) => {
+        return (
         <article>
             <h4>{post.title}</h4>
             <p className="excerpt">{post.body.substring(0, 75)}...</p>
@@ -22,4 +23,6 @@ const PostsExcerpt = ({ post }: PostsExcerptProps) => {
         </article>
     )
 }
+PostsExcerpt = React.memo(PostsExcerpt)
+
 export default PostsExcerpt

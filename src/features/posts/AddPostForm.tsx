@@ -16,7 +16,7 @@ const AddPostForm = () => {
     const users: userType[] = useSelector(selectAllUsers)
 
     const onTitleChanged = (e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)
-    const onContentChanged = (e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)
+    const onContentChanged = (e: any) => setContent(e.target.value)
     const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) => setUserId(e.target.value)
 
     const canSave = [title, content, userId].every(Boolean) && addRequestStatus === 'idle';
@@ -36,6 +36,7 @@ const AddPostForm = () => {
                 setAddRequestStatus('idle')
             }
         }
+
     }
 
     const usersOptions = users.map(user => (
@@ -46,7 +47,7 @@ const AddPostForm = () => {
 
     return (
         <section>
-            <h4>Add a New Post</h4>
+            <h3>Add a New Post</h3>
             <form>
                 <label htmlFor="postTitle">Post Title:</label>
                 <input
