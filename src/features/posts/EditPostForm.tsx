@@ -29,7 +29,7 @@ const EditPostForm = () => {
     }
 
     const onTitleChanged = (e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)
-    const onContentChanged = (e: any) => setContent(e.target.value)
+    const onContentChanged = (e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)
     const onAuthorChanged = (e: ChangeEvent<HTMLSelectElement>) => setUserId(e.target.value)
 
     const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
@@ -75,7 +75,7 @@ const EditPostForm = () => {
 
     return (
         <section>
-            <h4>Edit Post</h4>
+            <h4>Redux Blog</h4>
             <form>
                 <label htmlFor="postTitle">Post Title:</label>
                 <input
